@@ -8458,6 +8458,53 @@ __metadata:
   languageName: node
   linkType: hard
 
+"some-cool-stuff-to-your-music@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "some-cool-stuff-to-your-music@workspace:."
+  dependencies:
+    "@electron-forge/cli": "npm:~7.11.1"
+    "@electron-forge/maker-deb": "npm:~7.11.1"
+    "@electron-forge/maker-rpm": "npm:~7.11.1"
+    "@electron-forge/maker-squirrel": "npm:~7.11.1"
+    "@electron-forge/maker-zip": "npm:~7.11.1"
+    "@electron-forge/plugin-auto-unpack-natives": "npm:~7.11.1"
+    "@electron-forge/plugin-fuses": "npm:~7.11.1"
+    "@electron-forge/plugin-vite": "npm:~7.11.1"
+    "@electron-forge/publisher-github": "npm:~7.11.1"
+    "@electron/fuses": "npm:^2.0.0"
+    "@fastify/cors": "npm:^11.2.0"
+    "@fastify/error": "npm:^4.2.0"
+    "@fastify/rate-limit": "npm:^10.3.0"
+    "@fastify/type-provider-typebox": "npm:^5.2.0"
+    "@sinclair/typebox": "npm:^0.34.48"
+    "@types/electron-squirrel-startup": "npm:^1.0.2"
+    "@types/node": "npm:^22.19.11"
+    "@typescript-eslint/eslint-plugin": "npm:^8.55.0"
+    "@typescript-eslint/parser": "npm:^8.55.0"
+    "@vitejs/plugin-vue": "npm:^5.2.4"
+    conf: "npm:^10.2.0"
+    electron: "npm:^40.4.0"
+    electron-log: "npm:5.4.3"
+    electron-squirrel-startup: "npm:^1.0.1"
+    eslint: "npm:^8.57.1"
+    eslint-config-prettier: "npm:^9.1.2"
+    eslint-import-resolver-typescript: "npm:^3.10.1"
+    eslint-plugin-import: "npm:^2.32.0"
+    eslint-plugin-vue: "npm:^9.33.0"
+    fastify: "npm:^5.7.4"
+    fastify-socket.io: "npm:^5.1.0"
+    husky: "npm:^9.1.7"
+    lint-staged: "npm:^15.5.2"
+    material-symbols: "npm:^0.12.0"
+    prettier: "npm:3.8.1"
+    socket.io: "npm:^4.8.3"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:~5.9.3"
+    vite: "npm:^5.4.21"
+    vue: "npm:^3.5.28"
+  languageName: unknown
+  linkType: soft
+
 "sonic-boom@npm:^4.0.1":
   version: 4.2.0
   resolution: "sonic-boom@npm:4.2.0"
@@ -9898,50 +9945,3 @@ __metadata:
   checksum: 10c0/584168ef98eb5d913473a4858dce128803c4a6cd87c0f09e954fa01126a59a33ab9e513b633ad9ab953786ed16efdd8c8700097a51635aafaeed3fef7712fa79
   languageName: node
   linkType: hard
-
-"youtube-music-desktop-app@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "youtube-music-desktop-app@workspace:."
-  dependencies:
-    "@electron-forge/cli": "npm:~7.11.1"
-    "@electron-forge/maker-deb": "npm:~7.11.1"
-    "@electron-forge/maker-rpm": "npm:~7.11.1"
-    "@electron-forge/maker-squirrel": "npm:~7.11.1"
-    "@electron-forge/maker-zip": "npm:~7.11.1"
-    "@electron-forge/plugin-auto-unpack-natives": "npm:~7.11.1"
-    "@electron-forge/plugin-fuses": "npm:~7.11.1"
-    "@electron-forge/plugin-vite": "npm:~7.11.1"
-    "@electron-forge/publisher-github": "npm:~7.11.1"
-    "@electron/fuses": "npm:^2.0.0"
-    "@fastify/cors": "npm:^11.2.0"
-    "@fastify/error": "npm:^4.2.0"
-    "@fastify/rate-limit": "npm:^10.3.0"
-    "@fastify/type-provider-typebox": "npm:^5.2.0"
-    "@sinclair/typebox": "npm:^0.34.48"
-    "@types/electron-squirrel-startup": "npm:^1.0.2"
-    "@types/node": "npm:^22.19.11"
-    "@typescript-eslint/eslint-plugin": "npm:^8.55.0"
-    "@typescript-eslint/parser": "npm:^8.55.0"
-    "@vitejs/plugin-vue": "npm:^5.2.4"
-    conf: "npm:^10.2.0"
-    electron: "npm:^40.4.0"
-    electron-log: "npm:5.4.3"
-    electron-squirrel-startup: "npm:^1.0.1"
-    eslint: "npm:^8.57.1"
-    eslint-config-prettier: "npm:^9.1.2"
-    eslint-import-resolver-typescript: "npm:^3.10.1"
-    eslint-plugin-import: "npm:^2.32.0"
-    eslint-plugin-vue: "npm:^9.33.0"
-    fastify: "npm:^5.7.4"
-    fastify-socket.io: "npm:^5.1.0"
-    husky: "npm:^9.1.7"
-    lint-staged: "npm:^15.5.2"
-    material-symbols: "npm:^0.12.0"
-    prettier: "npm:3.8.1"
-    socket.io: "npm:^4.8.3"
-    ts-node: "npm:^10.9.2"
-    typescript: "npm:~5.9.3"
-    vite: "npm:^5.4.21"
-    vue: "npm:^3.5.28"
-  languageName: unknown
-  linkType: soft

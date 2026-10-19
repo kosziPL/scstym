@@ -1,0 +1,52 @@
+services:
+  scstym:
+    build: .
+    init: true
+    shm_size: 1gb
+    environment:
+      DISPLAY: ${DISPLAY:?Set DISPLAY to your X11 display}
+      XAUTHORITY: /tmp/.Xauthority
+      XDG_RUNTIME_DIR: /run/user/1000
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
+      PULSE_SERVER: unix:/run/user/1000/pulse/native
+      HUSKY: "0"
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      YARN_INSTALL_STATE_PATH: /home/node/.yarn/berry/install-state.gz
+      COREPACK_HOME: /home/node/.yarn/berry/corepack
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace
+      - type: volume
+        source: node_modules
+        target: /workspace/node_modules
+      - type: volume
+        source: yarn_cache
+        target: /home/node/.yarn/berry
+      - type: volume
+        source: config
+        target: /home/node/.config
+      - type: bind
+        source: /tmp/.X11-unix
+        target: /tmp/.X11-unix
+        read_only: true
+      - type: bind
+        source: ${XAUTHORITY:?Set XAUTHORITY to your X11 authority file}
+        target: /tmp/.Xauthority
+        read_only: true
+      - type: bind
+        source: ${XDG_RUNTIME_DIR:?Set XDG_RUNTIME_DIR}/bus
+        target: /run/user/1000/bus
+        read_only: true
+      - type: bind
+        source: ${XDG_RUNTIME_DIR:?Set XDG_RUNTIME_DIR}/pulse/native
+        target: /run/user/1000/pulse/native
+        read_only: true
+    ports:
+      - "127.0.0.1:9863:9863"
+
+volumes:
+  node_modules:
+  yarn_cache:
+  config:

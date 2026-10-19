@@ -1,12 +1,13 @@
 {
-  "name": "youtube-music-desktop-app",
-  "productName": "YouTube Music Desktop App",
+  "name": "some-cool-stuff-to-your-music",
+  "productName": "Some Cool Stuff To Your Music Desktop",
   "version": "2.0.11",
-  "description": "YouTube Music Desktop App",
+  "description": "Some Cool Stuff To Your Music Desktop",
   "main": ".vite/main/index.js",
   "private": true,
   "scripts": {
     "start": "electron-forge start",
+    "typecheck": "tsc --noEmit",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish:dry": "electron-forge publish --dry-run",

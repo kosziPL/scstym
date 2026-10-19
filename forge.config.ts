@@ -35,7 +35,7 @@ const config: ForgeConfig = {
     ],
     protocols: [
       {
-        name: "YouTube Music Desktop App",
+        name: "Some Cool Stuff To Your Music Desktop",
         schemes: ["ytmd"]
       }
     ],

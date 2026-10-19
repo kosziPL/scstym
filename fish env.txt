@@ -1,0 +1,3 @@
+Use this command before yarn start
+
+fnm env --use-on-cd --shell fish | source

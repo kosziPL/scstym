@@ -983,7 +983,7 @@ const createOrShowSettingsWindow = (): void => {
   settingsWindow.on("ready-to-show", () => {
     settingsWindow.show();
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development" && process.env.YTMD_OPEN_DEVTOOLS === "1") {
       settingsWindow.webContents.openDevTools({
         mode: "detach"
       });
@@ -1017,7 +1017,9 @@ function isPreventedNavOrRedirect(url: URL): boolean {
 }
 
 const createYTMView = (): void => {
+  if (ytmViewLoadTimeout) clearTimeout(ytmViewLoadTimeout);
   memoryStore.set("ytmViewLoadTimedout", false);
+  memoryStore.set("ytmViewLoadingError", false);
   memoryStore.set("ytmViewLoading", true);
   memoryStore.set("ytmViewLoadingStatus", "Initializing...");
 
@@ -1033,6 +1035,28 @@ const createYTMView = (): void => {
   companionServer.provide(store, memoryStore, ytmView);
   customCss.provide(store, ytmView);
   ratioVolume.provide(ytmView);
+
+  const view = ytmView;
+  // Page visibility must not depend on our hooks into YouTube's internal player API.
+  view.webContents.on("dom-ready", () => {
+    if (view !== ytmView || !mainWindow || mainWindow.isDestroyed() || memoryStore.get("ytmViewLoadingError")) return;
+
+    memoryStore.set("ytmViewLoading", false);
+    memoryStore.set("ytmViewLoadTimedout", false);
+    if (ytmViewLoadTimeout) clearTimeout(ytmViewLoadTimeout);
+    if (!mainWindow.getBrowserViews().includes(view)) mainWindow.addBrowserView(view);
+    const { width, height } = mainWindow.getContentBounds();
+    const top = mainWindow.fullScreen ? 0 : 36;
+    view.setBounds({ x: 0, y: top, width, height: height - top });
+  });
+  view.webContents.once("dom-ready", () => {
+    if (process.env.NODE_ENV === "development" && process.env.YTMD_OPEN_DEVTOOLS === "1") {
+      view.webContents.openDevTools({ mode: "detach" });
+    }
+  });
+  view.webContents.on("preload-error", (_event, _preloadPath, error) => {
+    log.warn("YTM integration preload failed; the page can still be used", error);
+  });
 
   // Attach events to ytm view
   ytmView.webContents.on("will-navigate", event => {
@@ -1314,7 +1338,7 @@ const createMainWindow = (): void => {
   mainWindow.on("ready-to-show", () => {
     mainWindow.show();
     // Open the DevTools.
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development" && process.env.YTMD_OPEN_DEVTOOLS === "1") {
       mainWindow.webContents.openDevTools({
         mode: "detach"
       });
@@ -1573,24 +1597,8 @@ app.on("ready", async () => {
     if (ytmView !== null && mainWindow !== null) {
       if (event.sender !== ytmView.webContents) return;
 
-      memoryStore.set("ytmViewLoading", false);
-      clearTimeout(ytmViewLoadTimeout);
-      mainWindow.addBrowserView(ytmView);
-      ytmView.setBounds({
-        x: 0,
-        y: 36,
-        width: mainWindow.getContentBounds().width,
-        height: mainWindow.getContentBounds().height - 36
-      });
-      if (process.env.NODE_ENV === "development") {
-        ytmView.webContents.openDevTools({
-          mode: "detach"
-        });
-      }
-
-      // TODO: this is just a hack fix for ratio volume to run the enable script
+      // Only enable integrations after the preload has installed their IPC listeners.
       ratioVolume.ytmViewLoaded();
-      // TODO: this is just a hack fix for custom css to update CSS when the view loads
       customCss.updateCSS();
     }
   });

@@ -62,6 +62,10 @@ yarn install
 yarn start
 ```
 
+DevTools can be opened from the app’s developer menu. To open them automatically
+during development, set `YTMD_OPEN_DEVTOOLS=1` before running `yarn start`.
+Run `yarn typecheck` to check TypeScript types without building the app.
+
 # Building the Project
 To build for your platform you need to run `yarn make`, however please see the information below regarding the required additionally Software, Tools and Packages which are needed to successfully package into a nice installer file.
 

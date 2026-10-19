@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 
 let gitBranch: string = "";
 try {
-  gitBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
+  gitBranch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
 } catch (e) {
   // User has likely downloaded from the YTM Desktop via the "Download ZIP".
   // We don't plan to support this, but at least provide users with a bit of improved UX

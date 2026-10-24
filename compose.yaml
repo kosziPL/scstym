@@ -2,6 +2,10 @@ services:
   scstym:
     build: .
     init: true
+    stdin_open: true
+    # Desktop sockets and source files retain their host SELinux labels.
+    security_opt:
+      - label=disable
     shm_size: 1gb
     environment:
       DISPLAY: ${DISPLAY:?Set DISPLAY to your X11 display}
@@ -9,6 +13,7 @@ services:
       XDG_RUNTIME_DIR: /run/user/1000
       DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
       PULSE_SERVER: unix:/run/user/1000/pulse/native
+      PULSE_COOKIE: /tmp/pulse-cookie
       HUSKY: "0"
       LIBGL_ALWAYS_SOFTWARE: "1"
       YARN_INSTALL_STATE_PATH: /home/node/.yarn/berry/install-state.gz
@@ -43,6 +48,12 @@ services:
         source: ${XDG_RUNTIME_DIR:?Set XDG_RUNTIME_DIR}/pulse/native
         target: /run/user/1000/pulse/native
         read_only: true
+      - type: bind
+        source: ${PULSE_COOKIE:-${HOME}/.config/pulse/cookie}
+        target: /tmp/pulse-cookie
+        read_only: true
+        bind:
+          create_host_path: false
     ports:
       - "127.0.0.1:9863:9863"
 

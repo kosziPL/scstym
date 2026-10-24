@@ -18,6 +18,15 @@ The container uses X11 (including XWayland sessions), the current Xauthority
 file, the session D-Bus, and the PulseAudio-compatible socket. `DISPLAY`,
 `XAUTHORITY`, and `XDG_RUNTIME_DIR` must be set in the shell. The default
 container user has UID 1000, matching the current Linux desktop user.
+The PulseAudio authentication cookie is mounted read-only from
+`~/.config/pulse/cookie`; set `PULSE_COOKIE` if yours is stored elsewhere.
+The service keeps standard input open for Electron Forge when running detached.
+
+On SELinux hosts the service disables SELinux labeling for this container with
+`security_opt: [label=disable]`, so it can read the source and access the desktop
+sockets with their existing host labels. This reduces SELinux isolation for this
+local development container; it does not relabel the repository or session files
+or disable SELinux on the host.
 
 The source is bind-mounted. Dependencies and app settings live in separate Docker
 volumes; the host's `node_modules` is never mounted into the container. On each
@@ -32,6 +41,7 @@ development inside a container. Do not use this setup to distribute the app.
 ```sh
 docker compose run --rm scstym yarn typecheck
 docker compose run --rm scstym yarn make
+docker compose exec scstym pactl info
 docker compose down
 ```
 

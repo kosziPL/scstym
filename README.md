@@ -145,3 +145,23 @@ A Thank you to all the contributors throughout the project, without their work t
 [download-img]: https://img.shields.io/github/downloads/ytmdesktop/ytmdesktop/total.svg?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZGF0YS1wcmVmaXg9ImZhcyIgZGF0YS1pY29uPSJjbG91ZC1kb3dubG9hZC1hbHQiIGNsYXNzPSJzdmctaW5saW5lLS1mYSBmYS1jbG91ZC1kb3dubG9hZC1hbHQgZmEtdy0yMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNjQwIDUxMiI+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTUzOCAyMjdjNC0xMSA2LTIzIDYtMzVhOTYgOTYgMCAwMC0xNDktODAgMTYwIDE2MCAwIDAwLTI5OSA4OCAxNDQgMTQ0IDAgMDA0OCAyODBoMzY4YTEyOCAxMjggMCAwMDI2LTI1M3ptLTEzMyA4OEwyOTkgNDIxYy02IDYtMTYgNi0yMiAwTDE3MSAzMTVjLTEwLTEwLTMtMjcgMTItMjdoNjVWMTc2YzAtOSA3LTE2IDE2LTE2aDQ4YzkgMCAxNiA3IDE2IDE2djExMmg2NWMxNSAwIDIyIDE3IDEyIDI3eiIvPjwvc3ZnPg==
 [download-url]: https://github.com/ytmdesktop/ytmdesktop/releases/
 [more]: https://www.howtogeek.com/261575/how-to-run-graphical-linux-desktop-applications-from-windows-10s-bash-shell/
+
+### Publishing a release
+
+Push any tag to trigger `.github/workflows/publish.yml`. The tagged commit must
+contain the workflow. For example, to release a specific commit:
+
+```sh
+git tag v2.0.12 <commit-sha>
+git push origin v2.0.12
+```
+
+The workflow builds Linux DEB/RPM and macOS ZIP packages for x64 and arm64,
+and a Windows x64 installer (including Squirrel update files). Once all builds
+succeed, it creates a public GitHub Release in this repository for the exact
+pushed tag and attaches the files. Re-running the workflow updates the assets
+of an existing release. It uses the automatic `GITHUB_TOKEN`; no personal token
+or repository variables are required.
+
+Tag names do not change the application version: update `package.json` before
+tagging if the release should contain a new application version.

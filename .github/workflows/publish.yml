@@ -1,52 +1,97 @@
----
 name: Application Publish
 
 on:
   push:
     tags:
-      - "v*"
+      - "**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  YTMD_UPDATE_FEED_OWNER: ${{ github.repository_owner }}
+  YTMD_UPDATE_FEED_REPOSITORY: ${{ github.event.repository.name }}
 
 jobs:
   build:
+    name: Build (${{ matrix.platform }}-${{ matrix.arch }})
     strategy:
+      fail-fast: false
       matrix:
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        arch: [ 'x64', 'arm64' ]
-        exclude:
-          # Mitigation for Electron Forge naming conflict. See #1183.
-          - os: 'windows-latest'
-            arch: 'arm64'
-        
-      fail-fast: true # Explicitly failing fast because this is a publish. We want to bail the entire release if something went wrong with another build
-
+        include:
+          - { platform: linux, os: ubuntu-24.04, arch: x64 }
+          - { platform: linux, os: ubuntu-24.04-arm, arch: arm64 }
+          - { platform: windows, os: windows-2022, arch: x64 }
+          - { platform: macos, os: macos-15-intel, arch: x64 }
+          - { platform: macos, os: macos-15, arch: arm64 }
     runs-on: ${{ matrix.os }}
-
     steps:
-      - name: Github checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Corepack Enable Yarn
-        run: corepack enable yarn
-
-      - name: Setup Node (v20)
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-data
-          cache: 'yarn'
-          node-version: "20.9.0"
+          node-version: "22"
+
+      - name: Enable Yarn
+        run: corepack enable
+
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot dpkg rpm
 
       - name: Install dependencies
-        run: yarn --immutable
+        run: yarn install --immutable
 
-      - name: Publish Dry (${{ matrix.arch }})
-        env:
-          YTMD_UPDATE_FEED_OWNER: ${{ vars.YTMD_UPDATE_FEED_OWNER }}
-          YTMD_UPDATE_FEED_REPOSITORY: ${{ vars.YTMD_UPDATE_FEED_REPOSITORY }}
-        run: yarn publish:dry --arch ${{ matrix.arch }}
+      - name: Build installers
+        run: yarn make --arch ${{ matrix.arch }}
 
-      - name: Publish From Dry (${{ matrix.arch }})
-        run: yarn publish:fromdry
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}-${{ matrix.arch }}
+          path: out/make/
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release-assets
+
+      - name: Publish installers for the pushed tag
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          YTMD_UPDATE_FEED_OWNER: ${{ vars.YTMD_UPDATE_FEED_OWNER }}
-          YTMD_UPDATE_FEED_REPOSITORY: ${{ vars.YTMD_UPDATE_FEED_REPOSITORY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          mapfile -d '' assets < <(find release-assets -type f -print0)
+          if (( ${#assets[@]} == 0 )); then
+            echo "No release assets found" >&2
+            exit 1
+          fi
+          # Refuse ambiguous asset names rather than overwriting another platform.
+          duplicates=$(find release-assets -type f -printf '%f\n' | sort | uniq -d)
+          if [[ -n "$duplicates" ]]; then
+            echo "Duplicate release asset names: $duplicates" >&2
+            exit 1
+          fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          else
+            gh release create "$RELEASE_TAG" "${assets[@]}" \
+              --verify-tag --title "$RELEASE_TAG" --generate-notes
+          fi

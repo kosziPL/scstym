@@ -61,6 +61,23 @@ jobs:
       - name: Build installers
         run: yarn make --arch ${{ matrix.arch }}
 
+      - name: Create portable Linux archive
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          product_name=$(node -p "require('./package.json').productName")
+          version=$(node -p "require('./package.json').version")
+          app_dir="out/${product_name}-linux-${ARCH}"
+          archive_name="scstym-${version}-linux-${ARCH}"
+          test -x "$app_dir/youtube-music-desktop-app"
+          mkdir -p out/make/tar
+          staging_dir=$(mktemp -d)
+          trap 'rm -rf "$staging_dir"' EXIT
+          cp -a "$app_dir" "$staging_dir/$archive_name"
+          tar -czf "out/make/tar/$archive_name.tar.gz" -C "$staging_dir" "$archive_name"
+
       - name: Upload installers
         uses: actions/upload-artifact@v4
         with:

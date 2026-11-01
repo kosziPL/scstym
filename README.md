@@ -156,7 +156,7 @@ git tag v2.0.12 <commit-sha>
 git push origin v2.0.12
 ```
 
-The workflow builds Linux DEB/RPM and macOS ZIP packages for x64 and arm64,
+The workflow builds Linux DEB/RPM/portable TAR.GZ and macOS ZIP packages for x64 and arm64,
 and a Windows x64 installer (including Squirrel update files). Once all builds
 succeed, it creates a public GitHub Release in this repository for the exact
 pushed tag and attaches the files. Re-running the workflow updates the assets
@@ -171,3 +171,23 @@ Publish → Run workflow**, select the `development` branch containing the workf
 and enter the tag (for example `v2.0.12`). The workflow checks out that exact tag,
 not the selected branch, before building. Automatic publishing on new tag pushes
 remains enabled.
+
+### Portable Linux app (including Arch Linux)
+
+Download `scstym-<version>-linux-x64.tar.gz` from this repository's Releases for
+an Intel/AMD 64-bit PC, or the `linux-arm64.tar.gz` archive for an ARM64 machine.
+The archive includes the app and its Electron runtime; Node.js, Yarn and an AUR
+package are not needed to run it. A Linux desktop with Electron's system libraries
+is still required.
+
+Extract the entire archive into a directory owned by your user and run the app
+as your regular desktop user. For example:
+
+```sh
+tar -xzf scstym-2.0.14-linux-x64.tar.gz
+cd scstym-2.0.14-linux-x64
+./youtube-music-desktop-app
+```
+
+Keep the extracted directory intact: the executable needs the bundled files next
+to it. To update, download and extract the archive for the new version.

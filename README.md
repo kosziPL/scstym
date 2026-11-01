@@ -165,3 +165,9 @@ or repository variables are required.
 
 Tag names do not change the application version: update `package.json` before
 tagging if the release should contain a new application version.
+
+To publish an existing tag without pushing it again, open **Actions → Application
+Publish → Run workflow**, select the `development` branch containing the workflow,
+and enter the tag (for example `v2.0.12`). The workflow checks out that exact tag,
+not the selected branch, before building. Automatic publishing on new tag pushes
+remains enabled.

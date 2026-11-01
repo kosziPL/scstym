@@ -16,9 +16,11 @@ for (let i = 0; i < process.argv.length; i++) {
   }
 }
 
+const executableName = "youtube-music-desktop-app";
+
 const config: ForgeConfig = {
   packagerConfig: {
-    executableName: "youtube-music-desktop-app",
+    executableName,
     icon: "./src/assets/icons/ytmd",
     extraResource: [
       "./src/assets/icons/tray.ico",
@@ -50,6 +52,7 @@ const config: ForgeConfig = {
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({
       options: {
+        bin: executableName,
         categories: ["AudioVideo", "Audio"],
         mimeType: ["x-scheme-handler/ytmd"],
         icon: "./src/assets/icons/ytmd.png"
@@ -57,6 +60,7 @@ const config: ForgeConfig = {
     }),
     new MakerDeb({
       options: {
+        bin: executableName,
         categories: ["AudioVideo", "Audio"],
         mimeType: ["x-scheme-handler/ytmd"],
         section: "sound",

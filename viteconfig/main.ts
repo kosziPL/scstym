@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import path from "node:path";
 import { defineConfig } from "vite";
 
 let gitBranch: string = "";
@@ -23,6 +24,17 @@ const devBuild = gitBranch !== "HEAD" && process.env.NODE_ENV === "development";
 
 // https://vitejs.dev/config
 export default defineConfig({
+  plugins: [
+    {
+      name: "ghostery-packaged-preload",
+      enforce: "pre",
+      resolveId(source, importer) {
+        if (source === "./preload_path.js" && importer?.includes("/@ghostery/adblocker-electron/")) {
+          return path.resolve(__dirname, "../src/main/integrations/adblock/preload-path.ts");
+        }
+      }
+    }
+  ],
   build: {
     outDir: ".vite/main",
     rollupOptions: {

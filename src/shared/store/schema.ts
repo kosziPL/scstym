@@ -30,6 +30,7 @@ export type StoreSchema = {
     ratioVolume: boolean;
   };
   integrations: {
+    adBlockEnabled: boolean;
     companionServerEnabled: boolean;
     companionServerAuthTokens: string | null; // array[object] | Encrypted for security
     companionServerCORSWildcardEnabled: boolean;

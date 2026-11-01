@@ -53,7 +53,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y fakeroot dpkg rpm
+          sudo apt-get install -y fakeroot dpkg rpm flatpak
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -77,6 +77,18 @@ jobs:
           trap 'rm -rf "$staging_dir"' EXIT
           cp -a "$app_dir" "$staging_dir/$archive_name"
           tar -czf "out/make/tar/$archive_name.tar.gz" -C "$staging_dir" "$archive_name"
+
+      - name: Install Flatpak runtime and Electron base
+        if: runner.os == 'Linux'
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive --no-related -y flathub \
+            org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08 \
+            org.electronjs.Electron2.BaseApp//25.08
+
+      - name: Build Flatpak bundle
+        if: runner.os == 'Linux'
+        run: yarn make:flatpak ${{ matrix.arch }}
 
       - name: Upload installers
         uses: actions/upload-artifact@v4

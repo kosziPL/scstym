@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Some Cool Stuff To Your Music
+Comment=Desktop player for YouTube Music
+Exec=scstym %U
+Icon=io.github.kosziPL.scstym
+Terminal=false
+Categories=AudioVideo;Audio;Music;
+MimeType=x-scheme-handler/ytmd;
+StartupWMClass=youtube-music-desktop-app

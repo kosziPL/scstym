@@ -156,7 +156,7 @@ git tag v2.0.12 <commit-sha>
 git push origin v2.0.12
 ```
 
-The workflow builds Linux DEB/RPM/portable TAR.GZ and macOS ZIP packages for x64 and arm64,
+The workflow builds Linux DEB/RPM/portable TAR.GZ/Flatpak and macOS ZIP packages for x64 and arm64,
 and a Windows x64 installer (including Squirrel update files). Once all builds
 succeed, it creates a public GitHub Release in this repository for the exact
 pushed tag and attaches the files. Re-running the workflow updates the assets
@@ -191,3 +191,46 @@ cd scstym-2.0.14-linux-x64
 
 Keep the extracted directory intact: the executable needs the bundled files next
 to it. To update, download and extract the archive for the new version.
+
+### Ad blocker
+
+Ad blocking is enabled by default in the YouTube Music view. To switch it off,
+open **Settings → Integrations → Ad blocker** and restart the app. The integration
+uses Ghostery's network filters, cosmetic filters and scriptlets, with a bundled
+snapshot of ad and tracking lists so it works without a first-run filter download.
+Lists are refreshed when the app is released, rather than downloaded at runtime.
+YouTube can change its ad delivery; blocking every in-player ad is not guaranteed.
+
+For maintainers: run `yarn adblock:update` before releasing updated filters, and
+`yarn test:adblock` to test the integration in a headless Electron process.
+
+### Flatpak
+
+Download the `.flatpak` matching your CPU from this repository's Releases. For
+example, on an Intel/AMD 64-bit machine:
+
+```sh
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install --user ./scstym-2.0.15-linux-x64.flatpak
+flatpak run io.github.kosziPL.scstym
+```
+
+For ARM64, use `scstym-2.0.15-linux-arm64.flatpak`. These are downloadable bundles;
+the app does not need to be published on Flathub. The first installation downloads
+the required Freedesktop runtime. Install a newer bundle with the same command to
+update the app.
+
+To build a bundle locally, install Flatpak and its build dependencies, then run:
+
+```sh
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install --user --noninteractive --no-related -y flathub \
+  org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08 \
+  org.electronjs.Electron2.BaseApp//25.08
+yarn package --arch x64
+yarn make:flatpak x64
+```
+
+The Flatpak uses Zypak to launch Electron within Flatpak's sandbox. It has access
+to the network, sound, display, GPU, notifications, keyring and system tray;
+it does not have blanket access to your home directory.

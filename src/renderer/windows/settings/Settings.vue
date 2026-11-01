@@ -54,6 +54,7 @@ const enableSpeakerFill = ref<boolean>(playback.enableSpeakerFill);
 const progressInTaskbar = ref<boolean>(playback.progressInTaskbar);
 const ratioVolume = ref<boolean>(playback.ratioVolume);
 
+const adBlockEnabled = ref<boolean>(integrations.adBlockEnabled !== false);
 const companionServerEnabled = ref<boolean>(integrations.companionServerEnabled);
 const companionServerAuthTokens = ref<AuthToken[]>(
   safeStorageAvailable.value ? (JSON.parse(await safeStorage.decryptString(integrations.companionServerAuthTokens)) ?? []) : []
@@ -92,6 +93,7 @@ store.onDidAnyChange(async newState => {
   progressInTaskbar.value = newState.playback.progressInTaskbar;
   ratioVolume.value = newState.playback.ratioVolume;
 
+  adBlockEnabled.value = newState.integrations.adBlockEnabled !== false;
   companionServerEnabled.value = newState.integrations.companionServerEnabled;
   companionServerAuthTokens.value = safeStorageAvailable.value
     ? (JSON.parse(await safeStorage.decryptString(newState.integrations.companionServerAuthTokens)) ?? [])
@@ -165,6 +167,7 @@ async function settingsChanged() {
   store.set("playback.enableSpeakerFill", enableSpeakerFill.value);
   store.set("playback.ratioVolume", ratioVolume.value);
 
+  store.set("integrations.adBlockEnabled", adBlockEnabled.value);
   store.set("integrations.companionServerEnabled", companionServerEnabled.value);
   store.set("integrations.companionServerCORSWildcardEnabled", companionServerCORSWildcardEnabled.value);
   store.set("integrations.discordPresenceEnabled", discordPresenceEnabled.value);
@@ -341,6 +344,14 @@ window.ytmd.handleUpdateDownloaded(() => {
         </div>
 
         <div v-if="currentTab === 4" class="integrations-tab">
+          <YTMDSetting
+            v-model="adBlockEnabled"
+            type="checkbox"
+            restart-required
+            name="Ad blocker"
+            description="Block ads and trackers in YouTube Music using bundled Ghostery filters"
+            @change="settingChangedRequiresRestart"
+          />
           <YTMDSetting
             v-model="companionServerEnabled"
             type="checkbox"

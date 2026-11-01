@@ -34,7 +34,8 @@ jobs:
           - { platform: linux, os: ubuntu-24.04-arm, arch: arm64 }
           - { platform: windows, os: windows-2022, arch: x64 }
           - { platform: macos, os: macos-15-intel, arch: x64 }
-          - { platform: macos, os: macos-15, arch: arm64 }
+          # Cross-package Apple Silicon on Intel to avoid the scarce ARM runner pool.
+          - { platform: macos, os: macos-15-intel, arch: arm64 }
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out the release tag
@@ -60,6 +61,23 @@ jobs:
 
       - name: Build installers
         run: yarn make --arch ${{ matrix.arch }}
+
+      - name: Verify macOS binary architecture
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          binary=$(find out -type f -path '*/Contents/MacOS/youtube-music-desktop-app' -print -quit)
+          test -n "$binary"
+          case "$ARCH" in
+            x64) expected_arch=x86_64 ;;
+            arm64) expected_arch=arm64 ;;
+            *) exit 1 ;;
+          esac
+          actual_arch=$(lipo -archs "$binary")
+          test "$actual_arch" = "$expected_arch"
+          echo "Verified macOS binary: $actual_arch"
 
       - name: Create portable Linux archive
         if: runner.os == 'Linux'

@@ -146,9 +146,26 @@ jobs:
             echo "Duplicate release asset names: $duplicates" >&2
             exit 1
           fi
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
-          else
-            gh release create "$RELEASE_TAG" "${assets[@]}" \
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --draft \
               --verify-tag --title "$RELEASE_TAG" --generate-notes
           fi
+          # Upload one file at a time; concurrent large uploads can time out.
+          for asset in "${assets[@]}"; do
+            uploaded=false
+            for attempt in 1 2 3 4 5; do
+              echo "Uploading $(basename "$asset") (attempt $attempt/5)"
+              if gh release upload "$RELEASE_TAG" "$asset" --clobber; then
+                uploaded=true
+                break
+              fi
+              if (( attempt < 5 )); then
+                sleep "$((attempt * 5))"
+              fi
+            done
+            if [[ "$uploaded" != true ]]; then
+              echo "Upload failed: $asset; release remains a draft" >&2
+              exit 1
+            fi
+          done
+          gh release edit "$RELEASE_TAG" --draft=false
